@@ -95,8 +95,8 @@ public class SatoriClient implements Closeable {
                 webSocketClientEvent.getCh().disconnect().sync();
                 webSocketClientEvent.group.shutdownGracefully().sync();
             }
-            open(false,true);
             pingTime=0;
+            open(false,true);
         }
     }
     public boolean onReceive(Signal callback){
