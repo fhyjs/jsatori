@@ -30,7 +30,8 @@ public class SatoriClient implements Closeable {
     public SignalBodyReady loginData;
     private boolean firstOpen=true;
     protected int sn=-1;
-    public List<CallbackWsReceiver.Callback> events;
+    public final List<CallbackWsReceiver.Callback> events = new ArrayList<>();
+    protected final InternalSignalEventListener internalSignalEventListener = new InternalSignalEventListener(this);
     public SatoriClient(String httpHost, String wsHost){
         closed=false;
         httpHost=httpHost.endsWith("/")?httpHost:httpHost+"/";
@@ -62,6 +63,7 @@ public class SatoriClient implements Closeable {
         log.info("Connecting to {},first:{},sync:{}",webSocketClientEvent.uri,first,sync);
         webSocketClientEvent.headers.add(authenticator.setCallback(this::onAuthenticate));
         authenticator.setSn(sn);
+        events.clear();
         webSocketClientEvent.open(sync);
         if (first) {
             status = LoginStatus.CONNECT;
@@ -77,6 +79,10 @@ public class SatoriClient implements Closeable {
     }
     public void tick() throws InterruptedException {
         pingTime+=500;
+        if (!events.contains(internalSignalEventListener)) {
+            events.add(internalSignalEventListener);
+            log.info("Added internal event listener.");
+        }
         if (isAuthorized()){
             if (pingTime>5000){
                 WsUtil.send(webSocketClientEvent.getCh(), new Signal(Opcode.PING,null));
@@ -100,7 +106,9 @@ public class SatoriClient implements Closeable {
         if (body instanceof IHasSn isn) this.sn=isn.getSn();
         var handled = false;
         for (CallbackWsReceiver.Callback event : events) {
-            event.onReceive(callback);
+            if (event.onReceive(callback)) {
+                handled=true;
+            }
         }
         if (opcode.equals(Opcode.PONG)){
             log.debug("PONG");
