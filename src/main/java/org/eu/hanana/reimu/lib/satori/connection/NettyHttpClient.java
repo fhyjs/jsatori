@@ -3,13 +3,12 @@ package org.eu.hanana.reimu.lib.satori.connection;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.nio.NioIoHandler;
-import io.netty.handler.codec.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.ByteBufFlux;
-import reactor.netty.ByteBufMono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.client.HttpClientResponse;
 import reactor.netty.resources.ConnectionProvider;
@@ -17,11 +16,8 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class NettyHttpClient implements Disposable {
     private static final Logger log = LogManager.getLogger(NettyHttpClient.class);
@@ -47,10 +43,17 @@ public class NettyHttpClient implements Disposable {
      * @param uri 请求的 URL
      * @return 请求的响应体内容
      */
-    public Mono<Tuple2<HttpClientResponse, ByteBufMono>> get(String uri) {
+    public Flux<Tuple2<HttpClientResponse, byte[]>> get(String uri) {
         return client.get()
                 .uri(uri)
-                .responseSingle((httpClientResponse, byteBufMono) -> Mono.just(Tuples.of(httpClientResponse,byteBufMono)))
+                .response((httpClientResponse, byteBufFlux) -> {
+                    return Mono.<Tuple2<HttpClientResponse, byte[]>>create(monoSink -> {
+                        byteBufFlux.aggregate().asByteArray().doOnSuccess( buf -> {
+                            monoSink.success(Tuples.of(httpClientResponse,buf));
+                        }).doOnError(monoSink::error).subscribe();
+
+                    });
+                })
                 .doOnError(throwable -> log.error("GET request failed: " + uri, throwable))
                 .retryWhen(
                         reactor.util.retry.Retry.backoff(3, Duration.ofSeconds(2))
@@ -65,7 +68,7 @@ public class NettyHttpClient implements Disposable {
      * @param body 请求的内容
      * @return 请求的响应体内容
      */
-    public Mono<Tuple2<HttpClientResponse, ByteBufMono>> post(String uri,Map<String,String> header, String body) {
+    public Flux<Tuple2<HttpClientResponse, byte[]>> post(String uri, Map<String,String> header, String body) {
         return client.headers(entries -> {
                     if (header == null) return;
                     HashMap<String, String> stringStringHashMap = new HashMap<>(header);
@@ -81,8 +84,18 @@ public class NettyHttpClient implements Disposable {
                 .post()
                 .uri(uri)
                 .send(ByteBufFlux.fromString(Mono.just(body)))
-                .responseSingle((httpClientResponse, byteBufMono) -> Mono.just(Tuples.of(httpClientResponse,byteBufMono)))
-                .doOnNext(response -> log.debug("POST response received: {} - {}", response.getT1().status().code(), uri))
+                .response((httpClientResponse, byteBufFlux) -> {
+                    return Mono.<Tuple2<HttpClientResponse, byte[]>>create(monoSink -> {
+                        byteBufFlux.aggregate().asByteArray().doOnSuccess( buf -> {
+                            monoSink.success(Tuples.of(httpClientResponse,buf));
+                        }).doOnError(monoSink::error).subscribe();
+
+                    });
+                })
+                //.doOnNext(response -> log.debug("POST response received: {} - {}", response.getT1().status().code(), uri))
+                .doOnNext(response -> {
+                    log.debug("POST response status: {}", response.getT1().status());
+                })
                 .doOnError(throwable -> log.error("POST request failed: " + uri, throwable))
                 .retryWhen(
                         reactor.util.retry.Retry.backoff(3, Duration.ofSeconds(2))
@@ -94,13 +107,11 @@ public class NettyHttpClient implements Disposable {
 
         // 示例：发起 GET 请求
         httpClient.get("https://httpbin.org/get")
-                .doOnNext(response -> System.out.println("GET Response: " + response))
-                .block();
+                .doOnNext(response -> System.out.println("GET Response: " + response));
 
         // 示例：发起 POST 请求
         httpClient.post("https://httpbin.org/post", null,"{\"name\": \"Netty\"}")
-                .doOnNext(response -> System.out.println("POST Response: " + response))
-                .block();
+                .doOnNext(response -> System.out.println("POST Response: " + response));
 
         httpClient.dispose();
     }

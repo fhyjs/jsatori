@@ -7,6 +7,8 @@ import org.eu.hanana.reimu.lib.satori.v1.protocol.*;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.eventtype.EventType;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.eventtype.MessageEvent;
 
+import java.util.Date;
+
 public class InternalSignalEventListener extends SignalEvent {
     private final Logger log = LogManager.getLogger(this);
     public SatoriClient satoriClient;
@@ -20,12 +22,14 @@ public class InternalSignalEventListener extends SignalEvent {
 
     @Override
     public boolean onEvent(EventType<? extends SignalBodyEvent> type, SignalBodyEvent event) {
-        if (type.equals(EventType.message_created)&&event instanceof MessageEvent messageEvent){
-            satoriClient.getClientApi().getMessageApi().create(messageEvent.login,messageEvent.getChannel().id,"JSatoriTEST:"+messageEvent.getMessage().content);
-            return true;
-        }
-        SignalBodyReady loginData = satoriClient.loginData;
         var flag = false;
+        SignalBodyReady loginData = satoriClient.loginData;
+        if (type.equals(EventType.message_created)&&event instanceof MessageEvent messageEvent){
+            log.debug("Received msg {} from {} on {}",messageEvent.getMessage().content,messageEvent.getUser().name,messageEvent.login.getPlatform());
+            messageEvent.reply(satoriClient,new Date().toString()).doOnSuccess(message ->{
+                    messageEvent.reply(satoriClient, String.valueOf(message)).subscribe();
+            }).subscribe();
+        }
         if (type.equals(EventType.login_removed)){
             loginData.logins.remove(loginData.findBySn(event.login.sn));
             flag = true;
