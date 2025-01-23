@@ -1,5 +1,8 @@
 package org.eu.hanana.reimu.lib.satori.v1.protocol;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class SignalBodyEvent extends AbstractSignalBody implements IHasSn{
     public int sn;
     public String type;
@@ -14,7 +17,6 @@ public class SignalBodyEvent extends AbstractSignalBody implements IHasSn{
     public User operator;
     public GuildRole role;
     public User user;
-
     @Override
     public int getSn() {
         return sn;

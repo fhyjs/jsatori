@@ -5,6 +5,7 @@ import com.google.gson.annotations.JsonAdapter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.function.Function;
 
@@ -40,6 +41,9 @@ public abstract class ObjectByIntId implements ISerializableMsg{
             Class<?> clazz = ((Class<?>) typeOfT);
             Field[] fields = clazz.getFields();
             for (Field field : fields) {
+                if (!Modifier.isStatic(field.getModifiers())||!Modifier.isPublic(field.getModifiers())) {
+                    continue;
+                }
                 Object o = null;
                 try {
                     o = field.get(null);

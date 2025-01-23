@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eu.hanana.reimu.lib.satori.v1.common.SignalEvent;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.*;
+import org.eu.hanana.reimu.lib.satori.v1.protocol.eventtype.EventType;
 
 public class InternalSignalEventListener extends SignalEvent {
     private final Logger log = LogManager.getLogger(this);
@@ -16,6 +17,10 @@ public class InternalSignalEventListener extends SignalEvent {
         return false;
     }
 
+    @Override
+    public boolean onEvent(EventType<? extends SignalBodyEvent> type, SignalBodyEvent event) {
+        return false;
+    }
     @Override
     public boolean onEvent(String type, SignalBodyEvent event) {
         SignalBodyReady loginData = satoriClient.loginData;

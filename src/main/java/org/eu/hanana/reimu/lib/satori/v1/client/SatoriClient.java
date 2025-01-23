@@ -1,17 +1,19 @@
 package org.eu.hanana.reimu.lib.satori.v1.client;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eu.hanana.reimu.lib.satori.connection.NettyHttpClient;
 import org.eu.hanana.reimu.lib.satori.connection.WebSocketClient;
 import org.eu.hanana.reimu.lib.satori.util.StringUtil;
-import org.eu.hanana.reimu.lib.satori.util.WsUtil;
-import org.eu.hanana.reimu.lib.satori.v1.common.SignalEvent;
+import org.eu.hanana.reimu.lib.satori.util.NetUtil;
+import org.eu.hanana.reimu.lib.satori.v1.client.api.IClientApi;
+import org.eu.hanana.reimu.lib.satori.v1.client.api.internal.ClientApi;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.*;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -22,15 +24,20 @@ public class SatoriClient implements Closeable {
     private final Logger log = LogManager.getLogger(this);
     protected boolean closed;
     public final URI baseHttpUrl,baseWsUrl;
+    @Getter
+    protected NettyHttpClient httpClient;
     public WebSocketClient webSocketClientEvent;
     private AuthenticatorC authenticator;
-    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private LoginStatus status = LoginStatus.OFFLINE;
     protected long pingTime;
     public SignalBodyReady loginData;
     private boolean firstOpen=true;
     protected int sn=-1;
     public final List<CallbackWsReceiver.Callback> events = new ArrayList<>();
+    protected IClientApi defaultClientApi=new ClientApi();
+    @Getter
+    protected IClientApi clientApi;
     protected final InternalSignalEventListener internalSignalEventListener = new InternalSignalEventListener(this);
     public SatoriClient(String httpHost, String wsHost){
         closed=false;
@@ -40,6 +47,10 @@ public class SatoriClient implements Closeable {
         this.baseWsUrl= URI.create(wsHost+getVersion()+"/");
         firstOpen=true;
     }
+    public void setDefaultClientApi() {
+        setClientApi(defaultClientApi);
+    }
+
     public static SatoriClient createSatoriClient(String host){
         var uri = URI.create(host);
         if (uri.getScheme()==null) uri=URI.create("http://"+host);
@@ -51,6 +62,12 @@ public class SatoriClient implements Closeable {
         this.authenticator=authenticator;
         return this;
     }
+
+    public void setClientApi(IClientApi clientApi) {
+        this.clientApi = clientApi;
+        clientApi.setClient(this);
+    }
+
     public void open(){
         this.open(firstOpen,false);
     }
@@ -66,6 +83,7 @@ public class SatoriClient implements Closeable {
         events.clear();
         webSocketClientEvent.open(sync);
         if (first) {
+            setDefaultClientApi();
             status = LoginStatus.CONNECT;
             scheduler.scheduleAtFixedRate(() -> {
                 try {
@@ -85,17 +103,17 @@ public class SatoriClient implements Closeable {
         }
         if (isAuthorized()){
             if (pingTime>5000){
-                WsUtil.send(webSocketClientEvent.getCh(), new Signal(Opcode.PING,null));
+                NetUtil.send(webSocketClientEvent.getCh(), new Signal(Opcode.PING,null));
             }
         }
         if (pingTime>10000){
             status=LoginStatus.RECONNECT;
             log.warn("Request timeout: {}ms.Connected:{}.\n{}!",pingTime,webSocketClientEvent.isConnected(),status);
+            pingTime=0;
             if (webSocketClientEvent.isConnected()) {
                 webSocketClientEvent.getCh().disconnect().sync();
                 webSocketClientEvent.group.shutdownGracefully().sync();
             }
-            pingTime=0;
             open(false,true);
         }
     }
