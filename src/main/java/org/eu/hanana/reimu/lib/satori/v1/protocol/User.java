@@ -1,6 +1,9 @@
 package org.eu.hanana.reimu.lib.satori.v1.protocol;
 
+import lombok.Getter;
+
 public class User {
+    @Getter
     public String id;
     public String name;
     public String nick;

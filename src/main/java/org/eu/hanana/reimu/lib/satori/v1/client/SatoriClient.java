@@ -82,6 +82,7 @@ public class SatoriClient implements Closeable {
         authenticator.setSn(sn);
         events.clear();
         webSocketClientEvent.open(sync);
+        httpClient=new NettyHttpClient();
         if (first) {
             setDefaultClientApi();
             status = LoginStatus.CONNECT;
@@ -154,6 +155,7 @@ public class SatoriClient implements Closeable {
     @Override
     public void close() {
         scheduler.close();
+        httpClient.dispose();
         webSocketClientEvent.group.shutdownGracefully();
     }
 

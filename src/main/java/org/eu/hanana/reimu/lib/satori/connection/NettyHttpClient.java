@@ -2,25 +2,31 @@ package org.eu.hanana.reimu.lib.satori.connection;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.nio.NioIoHandler;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eu.hanana.reimu.lib.satori.util.StringUtil;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.netty.ByteBufFlux;
+import reactor.netty.ByteBufMono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.client.HttpClientResponse;
 import reactor.netty.resources.ConnectionProvider;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class NettyHttpClient implements Disposable {
     private static final Logger log = LogManager.getLogger(NettyHttpClient.class);
     public final HttpClient client;
-    private final EventLoopGroup group;
+    public final EventLoopGroup group;
     private boolean running;
     public final ConnectionProvider httpConnectionProvider =
             ConnectionProvider.builder("nhc").build();
@@ -41,10 +47,10 @@ public class NettyHttpClient implements Disposable {
      * @param uri 请求的 URL
      * @return 请求的响应体内容
      */
-    public Mono<HttpClientResponse> get(String uri) {
+    public Mono<Tuple2<HttpClientResponse, ByteBufMono>> get(String uri) {
         return client.get()
                 .uri(uri)
-                .response()
+                .responseSingle((httpClientResponse, byteBufMono) -> Mono.just(Tuples.of(httpClientResponse,byteBufMono)))
                 .doOnError(throwable -> log.error("GET request failed: " + uri, throwable))
                 .retryWhen(
                         reactor.util.retry.Retry.backoff(3, Duration.ofSeconds(2))
@@ -55,16 +61,28 @@ public class NettyHttpClient implements Disposable {
     /**
      * 异步 POST 请求，带重试机制
      *
-     * @param uri 请求的 URL
+     * @param uri  请求的 URL
      * @param body 请求的内容
      * @return 请求的响应体内容
      */
-    public Mono<HttpClientResponse> post(String uri, String body) {
-        return client.post()
+    public Mono<Tuple2<HttpClientResponse, ByteBufMono>> post(String uri,Map<String,String> header, String body) {
+        return client.headers(entries -> {
+                    if (header == null) return;
+                    HashMap<String, String> stringStringHashMap = new HashMap<>(header);
+                    // 过滤掉 null 键或 null 值的条目
+                    stringStringHashMap.forEach((key, value) -> {
+                        if (key != null && value != null) {
+                            entries.add(key, value);
+                        } else {
+                            log.warn("Skipping null key or value in header: key = {}, value = {}", key, value);
+                        }
+                    });
+                })
+                .post()
                 .uri(uri)
                 .send(ByteBufFlux.fromString(Mono.just(body)))
-                .response()
-                .doOnNext(response -> log.info("POST response received: {} - {}", response.status().code(), uri))
+                .responseSingle((httpClientResponse, byteBufMono) -> Mono.just(Tuples.of(httpClientResponse,byteBufMono)))
+                .doOnNext(response -> log.debug("POST response received: {} - {}", response.getT1().status().code(), uri))
                 .doOnError(throwable -> log.error("POST request failed: " + uri, throwable))
                 .retryWhen(
                         reactor.util.retry.Retry.backoff(3, Duration.ofSeconds(2))
@@ -80,7 +98,7 @@ public class NettyHttpClient implements Disposable {
                 .block();
 
         // 示例：发起 POST 请求
-        httpClient.post("https://httpbin.org/post", "{\"name\": \"Netty\"}")
+        httpClient.post("https://httpbin.org/post", null,"{\"name\": \"Netty\"}")
                 .doOnNext(response -> System.out.println("POST Response: " + response))
                 .block();
 
