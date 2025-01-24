@@ -39,7 +39,7 @@ public class ApiMethod<T extends IApiData> {
         return parse(path,POST,dataClass);
     }
 
-    private static <T extends IApiData> ApiMethod<T> parse(String path, String method, Class<T> dataClass) {
+    public static <T extends IApiData> ApiMethod<T> parse(String path, String method, Class<T> dataClass) {
         String[] split = path.split("\\.");
         ApiMethod<T> apiMethod = new ApiMethod<>(method,dataClass);
         apiMethod.location.addAll(Arrays.asList(split));

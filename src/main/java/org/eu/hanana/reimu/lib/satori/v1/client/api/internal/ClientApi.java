@@ -1,25 +1,32 @@
 package org.eu.hanana.reimu.lib.satori.v1.client.api.internal;
 
+import lombok.SneakyThrows;
 import org.eu.hanana.reimu.lib.satori.v1.client.SatoriClient;
 import org.eu.hanana.reimu.lib.satori.v1.client.api.*;
+import org.eu.hanana.reimu.lib.satori.v1.common.api.*;
+
+import java.lang.reflect.Field;
 
 public class ClientApi implements IClientApi {
     private final MessageApi messageApi = new MessageApi();
+    private final ChannelApi channelApi = new ChannelApi();
+    private final GuildApi guildApi = new GuildApi();
+    private final GuildMemberApi guildMemberApi = new GuildMemberApi();
     private SatoriClient client;
 
     @Override
     public IChannelApi getChannelApi() {
-        return null;
+        return channelApi;
     }
 
     @Override
     public IGuildApi getGuildApi() {
-        return null;
+        return guildApi;
     }
 
     @Override
     public IGuildMemberApi getGuildMemberApi() {
-        return null;
+        return guildMemberApi;
     }
 
     @Override
@@ -52,9 +59,16 @@ public class ClientApi implements IClientApi {
         return null;
     }
 
+    @SneakyThrows
     @Override
     public void setClient(SatoriClient client) {
         this.client=client;
-        this.messageApi.setClient(client);
+        Field[] declaredFields = this.getClass().getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            Object o = declaredField.get(this);
+            if (o instanceof IClientHolder clientHolder){
+                clientHolder.setClient(this.client);
+            }
+        }
     }
 }

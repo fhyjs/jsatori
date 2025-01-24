@@ -3,6 +3,7 @@ package org.eu.hanana.reimu.lib.satori.v1.common;
 import com.google.gson.*;
 import lombok.AllArgsConstructor;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.IUserId;
+import org.jetbrains.annotations.Nullable;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -16,7 +17,8 @@ public class DefaultJsonApiData extends DefaultApiData{
          dataBody.getAsJsonObject().add(k,v);
          return this;
     }
-    public DefaultJsonApiData putBodyVal(String k,String v){
+    public DefaultJsonApiData putBodyVal(String k,@Nullable Object v){
+        if (v==null||k==null) return this;
         return this.putBodyVal(k,new Gson().toJsonTree(v));
 
     }

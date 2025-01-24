@@ -30,6 +30,9 @@ public class DefaultApiData implements IApiData{
     public DefaultApiData setAuthorization(String authorization){
         return putHeader("Authorization",authorization);
     }
+    public DefaultApiData setAuthorization(IAuthorizationDataHolder authorization){
+        return setAuthorization(authorization.getAuthorizationToken());
+    }
     public DefaultApiData setPlatformUser(String user){
         return putHeader("Satori-User-ID",user);
     }

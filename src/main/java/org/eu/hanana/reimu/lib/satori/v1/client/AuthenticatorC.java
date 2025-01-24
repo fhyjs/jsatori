@@ -5,12 +5,13 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import lombok.Getter;
 import org.eu.hanana.reimu.lib.satori.connection.AbstractWebSocketClientHandler;
+import org.eu.hanana.reimu.lib.satori.v1.common.IAuthorizationDataHolder;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.Opcode;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.Signal;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.SignalBodyIdentify;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.SignalBodyReady;
 
-public class AuthenticatorC extends AbstractWebSocketClientHandler {
+public class AuthenticatorC extends AbstractWebSocketClientHandler implements IAuthorizationDataHolder {
     private final SignalBodyIdentify idBody;
     @Getter
     protected boolean authorized=false;
@@ -58,4 +59,8 @@ public class AuthenticatorC extends AbstractWebSocketClientHandler {
         }
     }
 
+    @Override
+    public String getAuthorizationToken() {
+        return getAuthenticatorToken();
+    }
 }

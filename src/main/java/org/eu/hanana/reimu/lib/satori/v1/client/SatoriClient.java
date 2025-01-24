@@ -10,6 +10,7 @@ import org.eu.hanana.reimu.lib.satori.util.StringUtil;
 import org.eu.hanana.reimu.lib.satori.util.NetUtil;
 import org.eu.hanana.reimu.lib.satori.v1.client.api.IClientApi;
 import org.eu.hanana.reimu.lib.satori.v1.client.api.internal.ClientApi;
+import org.eu.hanana.reimu.lib.satori.v1.common.IAuthorizationDataHolder;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.*;
 
 import java.io.Closeable;
@@ -20,15 +21,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class SatoriClient implements Closeable {
+public class SatoriClient implements Closeable, IAuthorizationDataHolder {
     private final Logger log = LogManager.getLogger(this);
     protected boolean closed;
     public final URI baseHttpUrl,baseWsUrl;
     @Getter
     protected NettyHttpClient httpClient;
     public WebSocketClient webSocketClientEvent;
+    @Getter
     private AuthenticatorC authenticator;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    @Getter
     private LoginStatus status = LoginStatus.OFFLINE;
     protected long pingTime;
     public SignalBodyReady loginData;
@@ -144,11 +147,10 @@ public class SatoriClient implements Closeable {
         log.info("Authenticated for {}",webSocketClientEvent.uri);
         this.loginData=authenticator.getReadyData();
         webSocketClientEvent.headers.add(new CallbackWsReceiver().setCallback(this::onReceive));
+        getClientApi().setClient(this);
         status=LoginStatus.ONLINE;
     }
-    public AuthenticatorC getAuthenticator() {
-        return authenticator;
-    }
+
     public boolean isAuthorized() {
         return getAuthenticator()!=null&&getAuthenticator().isAuthorized();
     }
@@ -159,11 +161,12 @@ public class SatoriClient implements Closeable {
         webSocketClientEvent.group.shutdownGracefully();
     }
 
-    public LoginStatus getStatus() {
-        return status;
-    }
-
     public String getVersion(){
         return "v1";
+    }
+
+    @Override
+    public String getAuthorizationToken() {
+        return getAuthenticator().getAuthorizationToken();
     }
 }
