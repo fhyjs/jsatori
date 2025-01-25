@@ -17,6 +17,7 @@ public class ClientApi implements ISatoriApi, IClientHolder{
     private final LoginApi loginApi = new LoginApi();
     private final ReactionApi reactionApi = new ReactionApi();
     private final UserApi userApi = new UserApi();
+    private final ResourceApi resourceApi = new ResourceApi();
     private SatoriClient client;
 
     @Override
@@ -62,6 +63,11 @@ public class ClientApi implements ISatoriApi, IClientHolder{
     @Override
     public IUserApi getUserApi() {
         return userApi;
+    }
+
+    @Override
+    public IResourceApi getResourceApi() {
+        return resourceApi;
     }
 
     @SneakyThrows

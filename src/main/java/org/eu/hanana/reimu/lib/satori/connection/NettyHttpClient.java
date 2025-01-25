@@ -1,5 +1,6 @@
 package org.eu.hanana.reimu.lib.satori.connection;
 
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.nio.NioIoHandler;
@@ -15,6 +16,8 @@ import reactor.netty.resources.ConnectionProvider;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,7 +86,7 @@ public class NettyHttpClient implements Disposable {
                 })
                 .post()
                 .uri(uri)
-                .send(ByteBufFlux.fromString(Mono.just(body)))
+                .send(ByteBufFlux.fromString(Mono.just(body), StandardCharsets.UTF_8, ByteBufAllocator.DEFAULT))
                 .response((httpClientResponse, byteBufFlux) -> {
                     return Mono.<Tuple2<HttpClientResponse, byte[]>>create(monoSink -> {
                         byteBufFlux.aggregate().asByteArray().doOnSuccess( buf -> {

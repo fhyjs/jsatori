@@ -2,6 +2,7 @@ package org.eu.hanana.reimu.lib.satori.v1.client;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eu.hanana.reimu.lib.satori.v1.common.FormDataApiData;
 import org.eu.hanana.reimu.lib.satori.v1.common.PagedData;
 import org.eu.hanana.reimu.lib.satori.v1.common.SignalEvent;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.*;
@@ -9,7 +10,9 @@ import org.eu.hanana.reimu.lib.satori.v1.protocol.eventtype.EventType;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.eventtype.MessageEvent;
 import reactor.core.scheduler.Schedulers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class InternalSignalEventListener extends SignalEvent {
@@ -30,7 +33,7 @@ public class InternalSignalEventListener extends SignalEvent {
         if (type.equals(EventType.message_created)&&event instanceof MessageEvent messageEvent){
             log.debug("Received msg {} from {} on {}",messageEvent.getMessage().content,messageEvent.getUser().name,messageEvent.login.getPlatform());
             satoriClient.getClientApi().getLoginApi().get(event.login).subscribeOn(Schedulers.boundedElastic()).doOnSuccess(login -> {
-                messageEvent.reply(satoriClient.getClientApi(),login.platform).subscribeOn(Schedulers.boundedElastic()).subscribe();
+
             }).subscribe();
         }
         if (type.equals(EventType.login_removed)){

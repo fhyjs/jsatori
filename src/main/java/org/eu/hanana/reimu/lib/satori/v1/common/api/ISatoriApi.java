@@ -10,4 +10,5 @@ public interface ISatoriApi {
     IMessageApi getMessageApi();
     IReactionApi getReactionApi();
     IUserApi getUserApi();
+    IResourceApi getResourceApi();
 }

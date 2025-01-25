@@ -15,8 +15,14 @@ public class PagedData<T> {
         this(JsonParser.parseString(data),tClass);
     }
     public PagedData(JsonElement data,Class<T> clazz){
-        JsonArray jsonArray = data.getAsJsonObject().get("data").getAsJsonArray();
         Gson gson = new Gson();
+        if (data.isJsonArray()){
+            for (JsonElement jsonElement : data.getAsJsonArray()) {
+                this.data.add(gson.fromJson(jsonElement,clazz));
+            }
+            return;
+        }
+        JsonArray jsonArray = data.getAsJsonObject().get("data").getAsJsonArray();
         for (JsonElement jsonElement : jsonArray) {
             this.data.add(gson.fromJson(jsonElement,clazz));
         }

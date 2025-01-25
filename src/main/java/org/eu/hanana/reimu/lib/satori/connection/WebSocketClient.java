@@ -33,6 +33,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import lombok.Getter;
 
 import javax.net.ssl.SSLException;
 import java.net.URI;
@@ -48,6 +49,7 @@ public class WebSocketClient {
     public final EventLoopGroup group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
     public final Bootstrap bootstrap = new Bootstrap();
     public final WebSocketClientHandler0 handler;
+    @Getter
     protected Channel ch;
     public final List<AbstractWebSocketClientHandler> headers = new ArrayList<>();
     public WebSocketClient(String uriS) {
@@ -137,7 +139,4 @@ public class WebSocketClient {
         return ch!=null&&ch.isActive();
     }
 
-    public Channel getCh() {
-        return isConnected()?ch:null;
-    }
 }

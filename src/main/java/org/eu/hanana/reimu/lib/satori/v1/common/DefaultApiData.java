@@ -3,7 +3,9 @@ package org.eu.hanana.reimu.lib.satori.v1.common;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.IUserId;
+import reactor.netty.http.client.HttpClientForm;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -12,10 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @AllArgsConstructor
+@NoArgsConstructor
 public class DefaultApiData implements IApiData{
     public Map<String,String> httpHeader = new HashMap<>();
     public String httpBody = "";
-    public DefaultApiData(){}
     public DefaultApiData putHeader(String name,String val){
         httpHeader.put(name,val);
         return this;
