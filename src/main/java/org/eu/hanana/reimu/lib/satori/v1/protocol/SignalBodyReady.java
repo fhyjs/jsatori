@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class SignalBodyReady extends SignalBodyMeta{
-    public List<Login> logins;
-
     public List<Login> getSafeLogins() {
         return Collections.unmodifiableList(logins);
     }

@@ -4,4 +4,5 @@ import java.util.List;
 
 public class SignalBodyMeta extends AbstractSignalBody{
     public List<String> proxy_urls;
+    public List<Login> logins;
 }
