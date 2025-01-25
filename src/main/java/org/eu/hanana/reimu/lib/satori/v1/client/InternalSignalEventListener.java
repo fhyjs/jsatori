@@ -29,6 +29,9 @@ public class InternalSignalEventListener extends SignalEvent {
         SignalBodyReady loginData = satoriClient.loginData;
         if (type.equals(EventType.message_created)&&event instanceof MessageEvent messageEvent){
             log.debug("Received msg {} from {} on {}",messageEvent.getMessage().content,messageEvent.getUser().name,messageEvent.login.getPlatform());
+            satoriClient.getClientApi().getLoginApi().get(event.login).subscribeOn(Schedulers.boundedElastic()).doOnSuccess(login -> {
+                messageEvent.reply(satoriClient.getClientApi(),login.platform).subscribeOn(Schedulers.boundedElastic()).subscribe();
+            }).subscribe();
         }
         if (type.equals(EventType.login_removed)){
             loginData.logins.remove(loginData.findBySn(event.login.sn));

@@ -7,11 +7,13 @@ import org.eu.hanana.reimu.lib.satori.v1.common.api.*;
 
 import java.lang.reflect.Field;
 
-public class ClientApi implements IClientApi {
+public class ClientApi implements ISatoriApi, IClientHolder{
     private final MessageApi messageApi = new MessageApi();
     private final ChannelApi channelApi = new ChannelApi();
     private final GuildApi guildApi = new GuildApi();
     private final GuildMemberApi guildMemberApi = new GuildMemberApi();
+    private final GuildRoleApi guildRoleApi = new GuildRoleApi();
+    private final LoginApi loginApi = new LoginApi();
     private SatoriClient client;
 
     @Override
@@ -31,7 +33,7 @@ public class ClientApi implements IClientApi {
 
     @Override
     public IGuildRoleApi getGuildRoleApi() {
-        return null;
+        return guildRoleApi;
     }
 
     @Override
@@ -40,8 +42,8 @@ public class ClientApi implements IClientApi {
     }
 
     @Override
-    public ILoginApi getCLoginApi() {
-        return null;
+    public ILoginApi getLoginApi() {
+        return loginApi;
     }
 
     @Override

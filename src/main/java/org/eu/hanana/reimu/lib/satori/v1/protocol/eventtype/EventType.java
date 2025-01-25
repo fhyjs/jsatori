@@ -35,6 +35,9 @@ public class EventType<T extends SignalBodyEvent> {
     public static final EventType<LoginEvent> login_added = ((EventType) Objects.requireNonNull(parse("login-added")).setEventSupplier(new DefaultEventBodyBuilder<>(LoginEvent.class)));
     public static final EventType<LoginEvent> login_removed = ((EventType) Objects.requireNonNull(parse("login-removed")).setEventSupplier(new DefaultEventBodyBuilder<>(LoginEvent.class)));
     public static final EventType<LoginEvent> login_updated = ((EventType) Objects.requireNonNull(parse("login-updated")).setEventSupplier(new DefaultEventBodyBuilder<>(LoginEvent.class)));
+    //interaction
+    public static final EventType<InteractionEvent.InteractionEventButton> interaction_button = ((EventType) Objects.requireNonNull(parse("interaction/button")).setEventSupplier(new DefaultEventBodyBuilder<>(InteractionEvent.InteractionEventButton.class)));
+    public static final EventType<InteractionEvent.InteractionEventCommand> interaction_command = ((EventType) Objects.requireNonNull(parse("interaction/command")).setEventSupplier(new DefaultEventBodyBuilder<>(InteractionEvent.InteractionEventCommand.class)));
 
     public final String namespace;
     public final String operation;
@@ -87,6 +90,7 @@ public class EventType<T extends SignalBodyEvent> {
     }
 
     public static <T extends SignalBodyEvent> EventType<T> parse(String input) {
+        input=input.replace("/","-");
         int lastDashIndex = input.lastIndexOf('-');
         if (lastDashIndex != -1) {
             String beforeLastDash = input.substring(0, lastDashIndex);

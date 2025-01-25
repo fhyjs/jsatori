@@ -1,14 +1,14 @@
 package org.eu.hanana.reimu.lib.satori.v1.client;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eu.hanana.reimu.lib.satori.connection.NettyHttpClient;
 import org.eu.hanana.reimu.lib.satori.connection.WebSocketClient;
 import org.eu.hanana.reimu.lib.satori.util.StringUtil;
 import org.eu.hanana.reimu.lib.satori.util.NetUtil;
-import org.eu.hanana.reimu.lib.satori.v1.client.api.IClientApi;
+import org.eu.hanana.reimu.lib.satori.v1.client.api.IClientHolder;
+import org.eu.hanana.reimu.lib.satori.v1.client.api.ISatoriApi;
 import org.eu.hanana.reimu.lib.satori.v1.client.api.internal.ClientApi;
 import org.eu.hanana.reimu.lib.satori.v1.common.IAuthorizationDataHolder;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.*;
@@ -38,9 +38,9 @@ public class SatoriClient implements Closeable, IAuthorizationDataHolder {
     private boolean firstOpen=true;
     protected int sn=-1;
     public final List<CallbackWsReceiver.Callback> events = new ArrayList<>();
-    protected IClientApi defaultClientApi=new ClientApi();
+    protected ISatoriApi defaultClientApi=new ClientApi();
     @Getter
-    protected IClientApi clientApi;
+    protected ISatoriApi clientApi;
     protected final InternalSignalEventListener internalSignalEventListener = new InternalSignalEventListener(this);
     public SatoriClient(String httpHost, String wsHost){
         closed=false;
@@ -66,9 +66,11 @@ public class SatoriClient implements Closeable, IAuthorizationDataHolder {
         return this;
     }
 
-    public void setClientApi(IClientApi clientApi) {
+    public void setClientApi(ISatoriApi clientApi) {
         this.clientApi = clientApi;
-        clientApi.setClient(this);
+        if (clientApi instanceof IClientHolder clientHolder){
+            clientHolder.setClient(this);
+        }
     }
 
     public void open(){
@@ -147,7 +149,9 @@ public class SatoriClient implements Closeable, IAuthorizationDataHolder {
         log.info("Authenticated for {}",webSocketClientEvent.uri);
         this.loginData=authenticator.getReadyData();
         webSocketClientEvent.headers.add(new CallbackWsReceiver().setCallback(this::onReceive));
-        getClientApi().setClient(this);
+        if (getClientApi() instanceof IClientHolder clientHolder){
+            clientHolder.setClient(this);
+        }
         status=LoginStatus.ONLINE;
     }
 

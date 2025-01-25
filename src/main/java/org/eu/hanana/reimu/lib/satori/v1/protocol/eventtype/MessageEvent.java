@@ -1,6 +1,7 @@
 package org.eu.hanana.reimu.lib.satori.v1.protocol.eventtype;
 
 import org.eu.hanana.reimu.lib.satori.v1.client.SatoriClient;
+import org.eu.hanana.reimu.lib.satori.v1.client.api.ISatoriApi;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.Channel;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.Message;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.SignalBodyEvent;
@@ -19,7 +20,7 @@ public class MessageEvent extends SignalBodyEvent {
     public User getUser(){
         return user;
     }
-    public Mono<List<Message>> reply(SatoriClient satoriClient, String msg){
-        return satoriClient.getClientApi().getMessageApi().create(login,getChannel().id,msg);
+    public Mono<List<Message>> reply(ISatoriApi api, String msg){
+        return api.getMessageApi().create(login,getChannel().id,msg);
     }
 }
