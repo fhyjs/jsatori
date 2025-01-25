@@ -20,4 +20,15 @@ public class SignalBodyReady extends SignalBodyMeta{
     public boolean hasLoginWithSn(int sn){
         return findBySn(sn)!=null;
     }
+    public void addOrUpdate(Login login){
+        Login bySn = findBySn(login.sn);
+        if (bySn!=null){
+            if (!bySn.isSame(login)) {
+                logins.remove(findBySn(login.sn));
+                logins.add(login);
+            }
+        }else {
+            logins.add(login);
+        }
+    }
 }

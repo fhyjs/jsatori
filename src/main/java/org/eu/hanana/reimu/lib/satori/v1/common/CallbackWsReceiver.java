@@ -1,16 +1,13 @@
-package org.eu.hanana.reimu.lib.satori.v1.client;
+package org.eu.hanana.reimu.lib.satori.v1.common;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eu.hanana.reimu.lib.satori.connection.AbstractWebSocketClientHandler;
 import org.eu.hanana.reimu.lib.satori.util.StringUtil;
-import org.eu.hanana.reimu.lib.satori.v1.protocol.Opcode;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.Signal;
-import org.eu.hanana.reimu.lib.satori.v1.protocol.SignalBodyReady;
 
 public class CallbackWsReceiver extends AbstractWebSocketClientHandler {
     private static final Logger log = LogManager.getLogger(CallbackWsReceiver.class);

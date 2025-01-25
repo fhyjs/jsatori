@@ -1,6 +1,5 @@
 package org.eu.hanana.reimu.lib.satori.v1.common;
 
-import org.eu.hanana.reimu.lib.satori.v1.client.CallbackWsReceiver;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.AbstractSignalBody;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.Opcode;
 import org.eu.hanana.reimu.lib.satori.v1.protocol.Signal;

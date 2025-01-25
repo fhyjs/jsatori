@@ -1,5 +1,6 @@
 package org.eu.hanana.reimu.lib.satori.v1.client.api.internal;
 
+import com.google.errorprone.annotations.DoNotCall;
 import lombok.SneakyThrows;
 import org.eu.hanana.reimu.lib.satori.v1.client.SatoriClient;
 import org.eu.hanana.reimu.lib.satori.v1.client.api.*;
@@ -14,6 +15,8 @@ public class ClientApi implements ISatoriApi, IClientHolder{
     private final GuildMemberApi guildMemberApi = new GuildMemberApi();
     private final GuildRoleApi guildRoleApi = new GuildRoleApi();
     private final LoginApi loginApi = new LoginApi();
+    private final ReactionApi reactionApi = new ReactionApi();
+    private final UserApi userApi = new UserApi();
     private SatoriClient client;
 
     @Override
@@ -35,7 +38,7 @@ public class ClientApi implements ISatoriApi, IClientHolder{
     public IGuildRoleApi getGuildRoleApi() {
         return guildRoleApi;
     }
-
+    @DoNotCall("No api for interaction.")
     @Override
     public IInteractionApi InteractionApi() {
         return null;
@@ -53,12 +56,12 @@ public class ClientApi implements ISatoriApi, IClientHolder{
 
     @Override
     public IReactionApi getReactionApi() {
-        return null;
+        return reactionApi;
     }
 
     @Override
     public IUserApi getUserApi() {
-        return null;
+        return userApi;
     }
 
     @SneakyThrows

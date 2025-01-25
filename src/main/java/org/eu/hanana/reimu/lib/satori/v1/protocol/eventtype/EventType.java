@@ -38,6 +38,11 @@ public class EventType<T extends SignalBodyEvent> {
     //interaction
     public static final EventType<InteractionEvent.InteractionEventButton> interaction_button = ((EventType) Objects.requireNonNull(parse("interaction/button")).setEventSupplier(new DefaultEventBodyBuilder<>(InteractionEvent.InteractionEventButton.class)));
     public static final EventType<InteractionEvent.InteractionEventCommand> interaction_command = ((EventType) Objects.requireNonNull(parse("interaction/command")).setEventSupplier(new DefaultEventBodyBuilder<>(InteractionEvent.InteractionEventCommand.class)));
+    //reaction
+    public static final EventType<ReactionEvent> reaction_added = ((EventType) Objects.requireNonNull(parse("reaction-added")).setEventSupplier(new DefaultEventBodyBuilder<>(ReactionEvent.class)));
+    public static final EventType<ReactionEvent> reaction_removed = ((EventType) Objects.requireNonNull(parse("reaction-removed")).setEventSupplier(new DefaultEventBodyBuilder<>(ReactionEvent.class)));
+    //user
+    public static final EventType<UserEvent> friend_request = ((EventType) Objects.requireNonNull(parse("friend-request")).setEventSupplier(new DefaultEventBodyBuilder<>(UserEvent.class)));
 
     public final String namespace;
     public final String operation;

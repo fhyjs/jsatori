@@ -1,6 +1,4 @@
-package org.eu.hanana.reimu.lib.satori.v1.client.api;
-
-import org.eu.hanana.reimu.lib.satori.v1.common.api.*;
+package org.eu.hanana.reimu.lib.satori.v1.common.api;
 
 public interface ISatoriApi {
     IChannelApi getChannelApi();

@@ -31,7 +31,9 @@ public class LoginApi implements ILoginApi, IClientHolder  {
                 var result = send(client,AM_Get,new DefaultJsonApiData()
                         .setUserData(userId)
                         .setAuthorization(client));
-                monoSink.success(new Gson().fromJson(result, Login.class));
+                Login login = new Gson().fromJson(result, Login.class);
+                client.loginData.addOrUpdate(login);
+                monoSink.success(login);
             } catch (Exception e) {
                 log.error(StringUtil.getFullErrorMessage(e));
                 monoSink.error(e);  // 捕获异常并返回
