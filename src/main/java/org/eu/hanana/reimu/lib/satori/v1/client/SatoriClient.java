@@ -51,6 +51,10 @@ public class SatoriClient implements Closeable, IAuthorizationDataHolder {
         this.baseWsUrl= URI.create(wsHost+getVersion()+"/");
         firstOpen=true;
     }
+    public SatoriClient addEventListener(CallbackWsReceiver.Callback callback){
+        events.add(callback);
+        return this;
+    }
     public void setDefaultClientApi() {
         setClientApi(defaultClientApi);
     }

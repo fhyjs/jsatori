@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.eu.hanana.reimu.lib.satori.util.StringUtil;
 import org.eu.hanana.reimu.lib.satori.v1.client.AuthenticatorC;
 import org.eu.hanana.reimu.lib.satori.v1.client.SatoriClient;
+import org.eu.hanana.reimu.lib.satori.v1.protocol.SignalBodyIdentify;
 
 public class ClientMain implements Runnable{
     private static final Logger log = LogManager.getLogger(ClientMain.class);
@@ -27,7 +28,7 @@ public class ClientMain implements Runnable{
     @Override
     public void run() {
         client=SatoriClient.createSatoriClient(args[0]);
-        client.addAuthenticator(new AuthenticatorC());
+        client.addAuthenticator(new AuthenticatorC(new SignalBodyIdentify(args[1])));
         client.open();
     }
 }
