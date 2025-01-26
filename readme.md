@@ -3,7 +3,7 @@
 # JSatori
 The java implementation of  [Satori protocol](https://satori.chat/).<br/>
 Check out the latest  version on [repsy](https://repsy.io/fhyjs/maven/jsatori/artifacts/org.eu.hanana.reimu.lib.satori/jsatori).
-<br/><img src="https://img.shields.io/badge/JDK-+-brightgreen.svg?style=flat-square" alt="jdk-version"> [![Java CI with Gradle](https://github.com/fhyjs/jsatori/actions/workflows/gradle.yml/badge.svg)](https://github.com/fhyjs/jsatori/actions/workflows/gradle.yml)
+<br/><img src="https://img.shields.io/badge/JDK-21+-brightgreen.svg?style=flat-square" alt="jdk-version"> [![Java CI with Gradle](https://github.com/fhyjs/jsatori/actions/workflows/gradle.yml/badge.svg)](https://github.com/fhyjs/jsatori/actions/workflows/gradle.yml)
 </div>
 
 # Catalogue
