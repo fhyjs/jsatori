@@ -90,7 +90,7 @@ public class SatoriClient implements Closeable, IAuthorizationDataHolder {
         log.info("Connecting to {},first:{},sync:{}",webSocketClientEvent.uri,first,sync);
         webSocketClientEvent.headers.add(authenticator.setCallback(this::onAuthenticate));
         authenticator.setSn(sn);
-        events.clear();
+        //events.clear();
         webSocketClientEvent.open(sync);
         httpClient=new NettyHttpClient();
         if (first) {
